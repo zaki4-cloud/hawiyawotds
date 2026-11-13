@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>הקוד הנעול - נחיתת חירום במדינה זרה</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&family=Rubik:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+* {
+touch-action: manipulation;
+-webkit-tap-highlight-color: transparent;
+}
+body {
+font-family: 'Rubik', sans-serif;
+background-color: #0f172a;
+color: #f8fafc;
+user-select: none;
+}
+.font-arabic {
+font-family: 'Noto Sans Arabic', sans-serif;
+}
+.arabic-xl {
+font-size: 3rem;
+line-height: 3.5rem;
+}
+.toast-pop {
+animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+@keyframes popIn {
+0% { transform: translate(-50%, -20px) scale(0.8); opacity: 0; }
+100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+}
+.station-section {
+display: none !important;
+}
+.station-section.active-section {
+display: block !important;
+}
+button, select, input {
+pointer-events: auto !important;
+cursor: pointer;
+}
+</style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col relative overflow-x-hidden">
+
+<!-- Global Floating Feedback Toast -->
+<div id="feedback-toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 hidden toast-pop">
+<div id="toast-bg" class="bg-emerald-600 text-white font-extrabold px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border-2 border-emerald-300 text-sm sm:text-base">
+<i id="toast-icon" class="fa-solid fa-circle-check text-xl"></i>
+<span id="toast-msg">כל הכבוד! תשובה נכונה.</span>
+</div>
+</div>
+
+<!-- Header Navigation -->
+<header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 shadow-md">
+<div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="bg-amber-500 text-slate-950 p-2 rounded-xl font-bold">
+<i class="fa-solid fa-plane-arrival text-xl"></i>
+</div>
+<div>
+<h1 class="font-extrabold text-base sm:text-lg text-amber-400">הקוד הנעול: נחיתת חירום</h1>
+<p class="text-xs text-slate-400">ערבית לכיתה ט' | תעודת זהות</p>
+</div>
+</div>
+
+<div class="flex items-center gap-2">
+<div class="bg-slate-800 border border-amber-500/50 px-3 py-1.5 rounded-xl flex items-center gap-2">
+<i class="fa-solid fa-star text-amber-400 text-sm"></i>
+<span class="text-xs text-slate-400 font-bold">נקודות:</span>
+<span id="global-score" class="font-extrabold text-amber-300 text-sm sm:text-base">0</span>
+</div>
+
+<button onclick="toggleBotModal()" type="button" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm px-3 py-2 rounded-xl font-bold flex items-center gap-2 transition">
+<i class="fa-solid fa-robot text-amber-300"></i>
+<span class="hidden sm:inline">בוט העזר</span>
+</button>
+</div>
+</div>
+
+<div class="max-w-4xl mx-auto px-4 pb-2">
+<div class="grid grid-cols-5 gap-1 text-center text-xs">
+<button onclick="goToStation(1)" type="button" id="step-btn-1" class="py-2 rounded bg-amber-500 text-slate-950 font-bold transition">1. יוצאים</button>
+<button onclick="goToStation(2)" type="button" id="step-btn-2" class="py-2 rounded bg-slate-800 text-slate-400 transition">2. חוקרים</button>
+<button onclick="goToStation(3)" type="button" id="step-btn-3" class="py-2 rounded bg-slate-800 text-slate-400 transition">3. מתנסים</button>
+<button onclick="goToStation(4)" type="button" id="step-btn-4" class="py-2 rounded bg-slate-800 text-slate-400 transition">4. בודקים</button>
+<button onclick="goToStation(5)" type="button" id="step-btn-5" class="py-2 rounded bg-slate-800 text-slate-400 transition">5. מסכמים</button>
+</div>
+</div>
+</header>
+
+<!-- Main Game Container -->
+<main class="flex-grow max-w-4xl w-full mx-auto p-4 flex flex-col justify-between">
+
+<!-- STATION 1: INTRODUCTION -->
+<section id="station-1" class="space-y-6 station-section active-section">
+<div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl space-y-4">
+<div class="flex items-center gap-2 text-amber-400 font-bold text-sm">
+<i class="fa-solid fa-compass"></i>
+<span>תחנה 1: יוצאים לדרך</span>
+</div>
+
+<h2 class="text-2xl font-extrabold text-white">נחיתת חירום במדינה זרה</h2>
+
+<div class="bg-slate-800/80 p-4 rounded-xl border-r-4 border-amber-500 text-slate-200 leading-relaxed text-sm space-y-2">
+<p class="font-semibold text-amber-300">🚨 תרחיש חירום:</p>
+<p>במסגרת נחיתת חירום בטיסת פליי דובאי הגעתם לסעודיה ועליכם לספק פרטים אישיים של תעודת זהות בשני מסמכים שונים: האחד אישי והשני של היישוב.</p>
+<p class="p-3 bg-amber-950/60 border border-amber-500/40 rounded-lg text-amber-200 mt-2 font-medium">
+לתשומת לבכם ⚠️ בסעודיה לא מדברים עברית! תצטרכו לזהות ולהבין בעצמכם את המילים והשדות המבוקשים בערבית, לפענח אותן ולהשלים את הטפסים בצורה מדוייקת בהתאם לעבודת החקר
+</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700">
+<h3 class="font-bold text-amber-400 mb-1 text-sm flex items-center gap-2">
+<i class="fa-solid fa-bullseye"></i> מטרת הלימוד
+</h3>
+<p class="text-xs text-slate-300">לימוד ופענוח אוצר מילים מרכזי בערבית, זיהוי אותיות וניקוד פנימי, והשלמת תעודות זהות.</p>
+</div>
+
+<div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700">
+<h3 class="font-bold text-amber-400 mb-1 text-sm flex items-center gap-2">
+<i class="fa-solid fa-stopwatch"></i> זמנים ומשחוק
+</h3>
+<p class="text-xs text-slate-300">זמן: 40 דקות. כל תשובה נכונה מזכה ב-10 נקודות ופותחת תגים במסך הסיכום!</p>
+</div>
+</div>
+
+<div class="pt-4 flex justify-end">
+<button onclick="goToStation(2)" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-6 py-3 rounded-xl transition flex items-center gap-2 text-sm shadow-lg">
+<span>ממשיכים לתחנה 2 - מסמכים נדרשים</span>
+<i class="fa-solid fa-arrow-left"></i>
+</button>
+</div>
+</div>
+</section>
+
+<!-- STATION 2: VOCABULARY RESEARCH -->
+<section id="station-2" class="space-y-6 station-section">
+<div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl space-y-6">
+<div class="flex justify-between items-center border-b border-slate-800 pb-4">
+<div>
+<div class="flex items-center gap-2 text-amber-400 font-bold text-sm">
+<i class="fa-solid fa-book-open"></i>
+<span>תחנה 2: חוקרים ולומדים</span>
+</div>
+<h2 class="text-xl font-extrabold text-white">מסמכים נדרשים</h2>
+</div>
+<button onclick="toggleHint('hint-2')" type="button" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 px-3 py-1.5 rounded-lg border border-amber-500/30 transition">
+<i class="fa-solid fa-lightbulb"></i> רמז לתחנה
+</button>
+</div>
+
+<div id="hint-2" class="hidden bg-amber-950/40 border border-amber-500/30 p-3 rounded-xl text-xs text-amber-200">
+💡 רמז: התמקדו בניקוד הפנימי של האותיות והשתמשו בדמיון לעברית במילים כמו (מַכָּאן, תַארִיח', وِلادَة).
+</div>
+
+<!-- STEP 1 OF STATION 2: WORD BY WORD LEARNING -->
+<div id="single-word-section" class="space-y-4">
+<div class="flex justify-between items-center text-xs text-slate-400">
+<span>שלב א': למידת מילים בודדות וזיהוי אותיות</span>
+<span id="word-progress-counter" class="font-bold text-amber-400">מילה 1 מתוך 11</span>
+</div>
+
+<div class="bg-slate-800/90 rounded-2xl p-6 border border-slate-700 text-center space-y-4 shadow-lg">
+<div class="flex items-center justify-center gap-4 my-2">
+<span id="card-arabic-word" class="font-arabic arabic-xl font-extrabold text-amber-400 tracking-wide">
+إِسْم
+</span>
+<button onclick="playCurrentWordAudio()" type="button" class="bg-indigo-600 hover:bg-indigo-500 text-white p-3.5 rounded-full shadow-lg transition transform active:scale-95">
+<i class="fa-solid fa-volume-high text-xl"></i>
+</button>
+</div>
+
+<div class="text-xs text-slate-400">
+תעתיק/הגייה: <span id="card-phonetic" class="text-slate-200 font-bold">אִסְם</span>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-right text-xs">
+<div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700">
+<span class="text-slate-400 block mb-1">משמעות המילה:</span>
+<span id="card-meaning" class="text-amber-300 font-bold text-sm">שם</span>
+</div>
+<div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700">
+<span class="text-slate-400 block mb-1">דמיון לעברית:</span>
+<span id="card-similarity" class="text-slate-200 font-medium">מזכיר את המילה שם</span>
+</div>
+</div>
+
+<div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/80 text-right space-y-3 mt-4">
+<p class="text-xs font-bold text-indigo-300 flex items-center gap-2">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span id="card-quiz-question">איזו אות פותחת את המילה إِسْم?</span>
+</p>
+<div id="card-quiz-options" class="grid grid-cols-1 sm:grid-cols-3 gap-2"></div>
+<div id="card-quiz-feedback" class="text-xs font-bold hidden p-2 rounded"></div>
+</div>
+
+<div class="flex justify-between items-center pt-4">
+<button onclick="prevWord()" type="button" id="prev-word-btn" class="bg-slate-700 text-slate-300 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-slate-600 disabled:opacity-40">
+<i class="fa-solid fa-arrow-right"></i> למילה הקודמת
+</button>
+<button onclick="nextWord()" type="button" id="next-word-btn" class="bg-amber-500 text-slate-950 px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-amber-400">
+למילה הבאה <i class="fa-solid fa-arrow-left"></i>
+</button>
+</div>
+</div>
+</div>
+
+<!-- STEP 2 OF STATION 2: COMPOUND PHRASES DISCOVERY -->
+<div id="compound-phrases-section" class="bg-slate-900/80 rounded-2xl p-6 border border-slate-700 space-y-4 hidden">
+<div class="border-b border-slate-800 pb-3">
+<h3 class="text-lg font-bold text-amber-300 flex items-center gap-2">
+<i class="fa-solid fa-puzzle-piece"></i>
+<span>שלב ב': פענוח צמדי המילים בתעודות</span>
+</h3>
+<p class="text-xs text-slate-300">פענחו בעצמכם את משמעות צמדי המילים על סמך המילים הבודדות שלמדתם בשלב א':</p>
+</div>
+
+<div class="space-y-4">
+<div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-arabic text-3xl text-amber-400 font-bold">إِسْم العَائِلَة</span>
+<span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-300">צמד 1 מתוך 4</span>
+</div>
+<p class="text-xs text-slate-300">מה פירוש הצירוף إِسْم العَائِلَة?</p>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+<button onclick="checkCompound(this, true, 'إِسْم العَائِلَة = שם משפחה')" type="button" class="bg-slate-900 hover:bg-slate-700 p-2.5 rounded text-xs text-slate-200 border border-slate-700">שם משפחה</button>
+<button onclick="checkCompound(this, false, 'إِسْم العَائِلَة = שם משפחה')" type="button" class="bg-slate-900 hover:bg-slate-700 p-2.5 rounded text-xs text-slate-200 border border-slate-700">שם פרטי</button>
+<button onclick="checkCompound(this, false, 'إِسْم العَائِلَة = שם משפחה')" type="button" class="bg-slate-900 hover:bg-slate-700 p-2.5 rounded text-xs text-slate-200 border border-slate-700">שם העיר</button>
+</div>
+</div>
+
+<div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-arabic text-3xl text-amber-400 font-bold">تَارِيخ الوِلادَة</span>
+<span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-300">צמד 2 מתוך 4</span>
+</div>
+<p class="text-xs text-slate-300">מה פירוש הצירוף تَارِيخ الوِلادَة?</p>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+<button onclick="checkCompound(this, false, 'تَارِيخ الوِلادَة = תאריך לידה')" type="button" class="bg-slate-900 hover:bg-slate-700 p-2.5 rounded text-xs text-slate-200 border border-slate-700">תאריך הקמה</button>
+<button onclick="checkCompound(this, true, 'تَارِيخ الوِلادَة = תאריך לידה')" type="button" class="bg-slate-900 hover:bg-slate-700 p-2.5 rounded text-xs text-slate-200 border border-slate-700">תאריך לידה</button>
+<button onclick="checkCompound(this, false, 'تَارِيخ الوِلادَة = תאריך לידה')" type="button" class="bg-slate-900 hover:bg-slate-700 p-2.5 rounded text-xs text-slate-200 border border-slate-700">מקום לידה</button>
+</div>
+</div>
+
+<div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-arabic text-3xl text-amber-400 font-bold">مَكَان الوِلادَة</span>
+<span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-300">צמד 3 מתוך 4</span>
+</div>
+<p class="text-xs text-slate-300">מה פירוש הצירוף مَكَان الوِلادَة?</p>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+<button onclick="checkCompound(this, true, 'مَكَان الوِلادَة = מקום לידה')" type="button" class="bg-slate-900 hover:bg-slate-700 p-2.5 rounded text-xs text-slate-200 border border-slate-700">מקום לידה</button>
+<button onclick="checkCompound(this, false, 'مَكَان الوِلادَة = מקום לידה')" type="button" class="bg-slate-900 hover:bg-slate-700 p-2.5 rounded text-xs text-slate-200 border border-slate-700">מקום מגורים</button>
+<button onclick="checkCompound(this, false, 'مَكَان الوِلادَة = מקום לידה')" type="button" class="bg-slate-900 hover:bg-slate-700 p-2.5 rounded text-xs text-slate-200 border border-slate-700">תאריך לידה</button>
+</div>
+</div>
+
+<div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-arabic text-3xl text-amber-400 font-bold">عَدَد السُّكَّان</span>
+<span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-300">צמד 4 מתוך 4</span>
+</div>
+<p class="text-xs text-slate-300">מה פירוש הצירוף عَدَد السُّكَّان?</p>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+<button onclick="checkCompound(this, false, 'عَدَد السُّكَّان = מספר התושבים')" type="button" class="bg-slate-900 hover:bg-slate-700 p-2.5 rounded text-xs text-slate-200 border border-slate-700">שפת התושבים</button>
+<button onclick="checkCompound(this, false, 'عَدَد السُّكَّان = מספר התושבים')" type="button" class="bg-slate-900 hover:bg-slate-700 p-2.5 rounded text-xs text-slate-200 border border-slate-700">דת התושבים</button>
+<button onclick="checkCompound(this, true, 'عَدَد السُّكَّان = מספר התושבים')" type="button" class="bg-slate-900 hover:bg-slate-700 p-2.5 rounded text-xs text-slate-200 border border-slate-700">מספר התושבים</button>
+</div>
+</div>
+</div>
+
+<div class="pt-4 flex justify-end">
+<button onclick="goToStation(3)" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-6 py-3 rounded-xl transition flex items-center gap-2 text-sm shadow-lg">
+<span>ממשיכים לתחנה 3 - מתנסים ובוחרים</span>
+<i class="fa-solid fa-arrow-left"></i>
+</button>
+</div>
+</div>
+</section>
+
+<!-- STATION 3: TASKS & ENRICHMENT -->
+<section id="station-3" class="space-y-6 station-section">
+<div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl space-y-6">
+<div class="flex justify-between items-center border-b border-slate-800 pb-4">
+<div>
+<div class="flex items-center gap-2 text-amber-400 font-bold text-sm">
+<i class="fa-solid fa-list-check"></i>
+<span>תחנה 3: מתנסים ובוחרים</span>
+</div>
+<h2 class="text-xl font-extrabold text-white">מילוי המסמכים האישיים והיישוביים</h2>
+</div>
+<button onclick="toggleHint('hint-3')" type="button" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 px-3 py-1.5 rounded-lg border border-amber-500/30 transition">
+<i class="fa-solid fa-lightbulb"></i> רמז לתחנה
+</button>
+</div>
+
+<div id="hint-3" class="hidden bg-amber-950/40 border border-amber-500/30 p-3 rounded-xl text-xs text-amber-200">
+💡 רמז: בוחרים משימה אחת למילוי הטופס. סיימתם מהר? עוברים למשימת ההעמקה.
+</div>
+
+<div class="space-y-4">
+<p class="text-xs text-slate-300 font-semibold">בוחרים אחת מבין שתי המשימות הבאות למילוי:</p>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 flex flex-col justify-between space-y-3">
+<div>
+<h3 class="font-bold text-amber-300 text-sm mb-1 flex items-center gap-2">
+<i class="fa-solid fa-id-card"></i> משימה א': תעודת זהות אישית
+</h3>
+<p class="text-xs text-slate-300">מתאימים את שדות תעודת הזהות האישית בערבית לפירושיהם בעברית.</p>
+</div>
+<button onclick="openTask('personal')" type="button" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-lg text-xs transition">
+בוחרים במשימה זו
+</button>
+</div>
+
+<div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 flex flex-col justify-between space-y-3">
+<div>
+<h3 class="font-bold text-amber-300 text-sm mb-1 flex items-center gap-2">
+<i class="fa-solid fa-city"></i> משימה ב': תעודת זהות ליישוב
+</h3>
+<p class="text-xs text-slate-300">מתאימים את שדות תעודת הזהות היישובית בערבית לפירושיהם בעברית.</p>
+</div>
+<button onclick="openTask('city')" type="button" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-lg text-xs transition">
+בוחרים במשימה זו
+</button>
+</div>
+</div>
+</div>
+
+<div id="interactive-task-area" class="hidden bg-slate-800/90 p-5 rounded-2xl border border-amber-500/30 space-y-4">
+<h3 id="task-title" class="font-bold text-amber-400 text-base border-b border-slate-700 pb-2"></h3>
+<div id="task-questions" class="space-y-3"></div>
+<button onclick="submitTaskChoice()" type="button" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition">
+בדיקת התאמות המשימה
+</button>
+<div id="task-feedback" class="text-xs font-bold hidden p-2 rounded"></div>
+</div>
+
+<div class="bg-gradient-to-r from-purple-950/60 to-slate-900 border border-purple-500/40 p-5 rounded-2xl space-y-3">
+<div class="flex items-center justify-between">
+<h3 class="font-bold text-purple-300 text-sm flex items-center gap-2">
+<i class="fa-solid fa-star text-amber-400"></i>
+<span>משימת העמקה (לתלמידים שסיימו מוקדם)</span>
+</h3>
+<span class="text-[10px] bg-purple-900/80 text-purple-200 px-2 py-0.5 rounded border border-purple-400/30">אתגר רשות (+15 נקודות)</span>
+</div>
+<p class="text-xs text-slate-300">ממיינים את שדות המידע הבאים: האם הם שייכים לתעודת זהות אישית בלבד, לתעודת יישוב בלבד, או לשניהם?</p>
+
+<div class="space-y-2 text-xs">
+<div class="flex items-center justify-between bg-slate-900/80 p-2 rounded border border-slate-700">
+<span class="font-arabic text-2xl text-amber-300">تَارِيخ الوِلادَة</span>
+<select id="enrich-1" class="bg-slate-800 text-slate-200 p-1.5 rounded border border-slate-600">
+<option value="">בוחרים סיווג...</option>
+<option value="personal">אישי בלבד</option>
+<option value="city">יישוב בלבד</option>
+<option value="both">לשניהם</option>
+</select>
+</div>
+<div class="flex items-center justify-between bg-slate-900/80 p-2 rounded border border-slate-700">
+<span class="font-arabic text-2xl text-amber-300">لُغَة السُّكَّان</span>
+<select id="enrich-2" class="bg-slate-800 text-slate-200 p-1.5 rounded border border-slate-600">
+<option value="">בוחרים סיווג...</option>
+<option value="personal">אישי בלבד</option>
+<option value="city">יישוב בלבד</option>
+<option value="both">לשניהם</option>
+</select>
+</div>
+<div class="flex items-center justify-between bg-slate-900/80 p-2 rounded border border-slate-700">
+<span class="font-arabic text-2xl text-amber-300">الدِّين</span>
+<select id="enrich-3" class="bg-slate-800 text-slate-200 p-1.5 rounded border border-slate-600">
+<option value="">בוחרים סיווג...</option>
+<option value="personal">אישי בלבד</option>
+<option value="city">יישוב בלבד</option>
+<option value="both">לשניהם</option>
+</select>
+</div>
+</div>
+
+<button onclick="checkEnrichment()" type="button" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition">
+בודקים משימת העמקה
+</button>
+<div id="enrichment-feedback" class="text-xs font-bold hidden p-2 rounded"></div>
+</div>
+
+<div class="pt-4 flex justify-end">
+<button onclick="goToStation(4)" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-6 py-3 rounded-xl transition flex items-center gap-2 text-sm shadow-lg">
+<span>ממשיכים לתחנה 4 - בודקים את עצמנו</span>
+<i class="fa-solid fa-arrow-left"></i>
+</button>
+</div>
+</div>
+</section>
+
+<!-- STATION 4: INTERACTIVE QUIZ & LOCK CODE -->
+<section id="station-4" class="space-y-6 station-section">
+<div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl space-y-6">
+<div class="flex justify-between items-center border-b border-slate-800 pb-4">
+<div>
+<div class="flex items-center gap-2 text-amber-400 font-bold text-sm">
+<i class="fa-solid fa-key"></i>
+<span>תחנה 4: בודקים את עצמנו</span>
+</div>
+<h2 class="text-xl font-extrabold text-white">פענוח קוד המנעול</h2>
+</div>
+<button onclick="toggleHint('hint-4')" type="button" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 px-3 py-1.5 rounded-lg border border-amber-500/30 transition">
+<i class="fa-solid fa-lightbulb"></i> רמז לתחנה
+</button>
+</div>
+
+<div id="hint-4" class="hidden bg-amber-950/40 border border-amber-500/30 p-3 rounded-xl text-xs text-amber-200">
+💡 רמז: עונים נכונה על 3 השאלות. הספרות הנכונות ירכיבו את קוד המנעול לשחרור המסמכים.
+</div>
+
+<div class="space-y-4">
+<div class="bg-slate-800/70 p-4 rounded-xl border border-slate-700 space-y-2">
+<p class="text-xs font-bold text-amber-300">שאלה 1: מה פירוש השדה مِهْنَة (المهنة)?</p>
+<div class="grid grid-cols-3 gap-2 text-xs">
+<button onclick="selectQuiz(1, 0, false, 'المهنة = מקצוע / משלח יד')" type="button" class="q1-btn p-2.5 bg-slate-900 rounded border border-slate-700 text-slate-200">מקום מגורים</button>
+<button onclick="selectQuiz(1, 1, true, 'المهنة = מקצוע / משלח יד')" type="button" class="q1-btn p-2.5 bg-slate-900 rounded border border-slate-700 text-slate-200">מקצוע</button>
+<button onclick="selectQuiz(1, 2, false, 'المهنة = מקצוע / משלח יד')" type="button" class="q1-btn p-2.5 bg-slate-900 rounded border border-slate-700 text-slate-200">דת</button>
+</div>
+</div>
+
+<div class="bg-slate-800/70 p-4 rounded-xl border border-slate-700 space-y-2">
+<p class="text-xs font-bold text-amber-300">שאלה 2: איזה צירוף מבין הבאים פירושו תאריך הקמת העיר?</p>
+<div class="grid grid-cols-3 gap-2 text-xs">
+<button onclick="selectQuiz(2, 0, false, 'تَارِيخ إِقَامَة المَدِينَة = תאריך הקמת העיר')" type="button" class="q2-btn p-2.5 bg-slate-900 rounded border border-slate-700 text-slate-200 font-arabic text-lg">تَارِيخ الوِلادَة</button>
+<button onclick="selectQuiz(2, 1, true, 'تَارِيخ إِقَامَة المَدِينَة = תאריך הקמת העיר')" type="button" class="q2-btn p-2.5 bg-slate-900 rounded border border-slate-700 text-slate-200 font-arabic text-lg">تَارِيخ إِقَامَة المَدِينَة</button>
+<button onclick="selectQuiz(2, 2, false, 'تَارِيخ إِقَامَة المَدِينَة = תאריך הקמת העיר')" type="button" class="q2-btn p-2.5 bg-slate-900 rounded border border-slate-700 text-slate-200 font-arabic text-lg">مَكَان الوِلادَة</button>
+</div>
+</div>
+
+<div class="bg-slate-800/70 p-4 rounded-xl border border-slate-700 space-y-2">
+<p class="text-xs font-bold text-amber-300">שאלה 3: איזו מילה פירושה "אזור / מחוז"?</p>
+<div class="grid grid-cols-3 gap-2 text-xs">
+<button onclick="selectQuiz(3, 0, false, 'مِنْطَقَة = مחוז / אזור')" type="button" class="q3-btn p-2.5 bg-slate-900 rounded border border-slate-700 text-slate-200 font-arabic text-lg">مَدِينَة</button>
+<button onclick="selectQuiz(3, 1, false, 'مِنْطَقَة = مחוז / אזור')" type="button" class="q3-btn p-2.5 bg-slate-900 rounded border border-slate-700 text-slate-200 font-arabic text-lg">لُغَة</button>
+<button onclick="selectQuiz(3, 2, true, 'مِنْطَقَة = مחוז / אזור')" type="button" class="q3-btn p-2.5 bg-slate-900 rounded border border-slate-700 text-slate-200 font-arabic text-lg">مِنْطَقَة</button>
+</div>
+</div>
+</div>
+
+<div class="bg-slate-950 p-4 rounded-xl border border-amber-500/40 text-center space-y-3">
+<p class="text-xs text-slate-300 font-semibold">לוחצים לבדיקה ופענוח קוד המנעול:</p>
+<button onclick="checkLockCode()" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-6 py-3 rounded-xl text-xs transition">
+בודקים תשובות ופותרים קוד מנעול
+</button>
+<div id="lock-result" class="text-sm font-bold hidden p-3 rounded-lg"></div>
+</div>
+
+<div class="pt-4 flex justify-end">
+<button onclick="goToStation(5)" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-6 py-3 rounded-xl transition flex items-center gap-2 text-sm shadow-lg">
+<span>ממשיכים לתחנה 5 - מסכמים ומשקפים</span>
+<i class="fa-solid fa-arrow-left"></i>
+</button>
+</div>
+</div>
+</section>
+
+<!-- STATION 5: SUMMARY, REFLECTION & REVIEW DASHBOARD -->
+<section id="station-5" class="space-y-6 station-section">
+<div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl space-y-6">
+<div class="border-b border-slate-800 pb-4 flex justify-between items-center">
+<div>
+<div class="flex items-center gap-2 text-amber-400 font-bold text-sm">
+<i class="fa-solid fa-graduation-cap"></i>
+<span>תחנה 5: מסכמים ומשקפים</span>
+</div>
+<h2 class="text-xl font-extrabold text-white">סיכום הישגים, למידה וכרטיס יציאה</h2>
+</div>
+<div class="bg-amber-500/20 text-amber-300 border border-amber-500/40 px-3 py-1.5 rounded-xl font-extrabold text-xs">
+🎉 משימה הושלמה!
+</div>
+</div>
+
+<div class="bg-gradient-to-r from-amber-950/40 via-slate-900 to-indigo-950/40 p-5 rounded-2xl border border-amber-500/40 text-center space-y-4">
+<h3 class="text-lg font-bold text-amber-300">🏆 לוח סיכום הישגים אישי</h3>
+
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+<div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700">
+<span class="text-slate-400 block text-xs">ניקוד כולל:</span>
+<span id="summary-total-score" class="text-2xl font-black text-amber-400">0</span>
+</div>
+<div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700">
+<span class="text-slate-400 block text-xs">דיוק בתשובות:</span>
+<span id="summary-accuracy" class="text-2xl font-black text-emerald-400">0%</span>
+</div>
+<div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700">
+<span class="text-slate-400 block text-xs">שאלות שנענו:</span>
+<span id="summary-answered-count" class="text-2xl font-black text-indigo-300">0</span>
+</div>
+<div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700">
+<span class="text-slate-400 block text-xs">דרגה שהושגה:</span>
+<span id="summary-rank" class="text-sm font-bold text-purple-300">חוקר מתחיל</span>
+</div>
+</div>
+</div>
+
+<div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700 space-y-3">
+<h3 class="font-bold text-amber-300 text-sm flex items-center gap-2">
+<i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
+<span>סקירת שאלות וטעויות לחזרה ולמידה</span>
+</h3>
+<div id="mistakes-review-container" class="space-y-2 text-xs"></div>
+</div>
+
+<div class="space-y-4">
+<div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700 space-y-3 text-xs">
+<h3 class="font-bold text-amber-300">הערכה עצמית</h3>
+<div>
+<label class="block text-slate-300 mb-1">כיצד מעריכים את השליטה באוצר המילים של תעודות הזהות?</label>
+<select id="self-eval" class="w-full bg-slate-900 text-slate-200 p-2 rounded border border-slate-700">
+<option>מצוין - מבינים ויודעים לפענח את כל המילים והשדות לבד</option>
+<option>טוב מאוד - מבינים את רוב המילים, נעזרנו במעט רמזים</option>
+<option>בינוני - צרכנו רמזים רבים, יש לחזור על האותיות והמילים</option>
+</select>
+</div>
+
+<div>
+<label class="block text-slate-300 mb-1">מילה או אות שחידשו או היו מאתגרות במיוחד:</label>
+<input type="text" id="reflection-word" placeholder="כותבים כאן..." class="w-full bg-slate-900 text-slate-200 p-2 rounded border border-slate-700">
+</div>
+</div>
+
+<div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700 space-y-3 text-xs">
+<h3 class="font-bold text-amber-300">כרטיס יציאה להגשה למורה</h3>
+<p class="text-slate-300">לחיצה על הכפתור מעתיקה את סיכום הלמידה וההגשה לקליפבורד:</p>
+<button onclick="copyExitTicket()" type="button" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2.5 rounded-lg transition flex items-center gap-2">
+<i class="fa-solid fa-copy"></i>
+<span>מעתיקים סיכום להגשה למורה</span>
+</button>
+<div id="copy-feedback" class="text-xs font-bold text-emerald-400 hidden">הסיכום הועתק בהצלחה! ניתן להדביק אותו כעת.</div>
+</div>
+</div>
+</div>
+</section>
+
+</main>
+
+<!-- Bot Modal Component -->
+<div id="bot-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+<div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl">
+<div class="flex justify-between items-center border-b border-slate-800 pb-3">
+<div class="flex items-center gap-2">
+<i class="fa-solid fa-robot text-amber-400 text-lg"></i>
+<h3 class="font-bold text-white text-sm">בוט עזר לימודי (מורה וירטואלי)</h3>
+</div>
+<button onclick="toggleBotModal()" type="button" class="text-slate-400 hover:text-white p-1">
+<i class="fa-solid fa-xmark text-lg"></i>
+</button>
+</div>
+
+<div id="bot-chat-history" class="h-48 overflow-y-auto space-y-2 text-xs bg-slate-950 p-3 rounded-xl border border-slate-800">
+<div class="bg-indigo-900/40 text-indigo-200 p-2 rounded-lg border border-indigo-500/20">
+👋 שלום! אנחנו בוט העזר. יש לכם שאלה לגבי אות, מילה או הנחיה? בוחרים שאלה נפוצה או שואלים חופשי:
+</div>
+</div>
+
+<div class="space-y-2 text-xs">
+<button onclick="askBotQuestion('איך הוגים את האות ط במילה منطقة?')" type="button" class="w-full text-right bg-slate-800 hover:bg-slate-700 p-2 rounded text-slate-300">
+❓ איך הוגים את האות טאא (ط) במילה مِنْطَقَة؟
+</button>
+<button onclick="askBotQuestion('מה ההבדל בין تاريخ الولادة לבין تاريخ إقامة المدينة?')" type="button" class="w-full text-right bg-slate-800 hover:bg-slate-700 p-2 rounded text-slate-300">
+❓ מה ההבדל בין תאריך לידה לתאריך הקמה?
+</button>
+</div>
+
+<div class="flex gap-2">
+<input type="text" id="bot-custom-input" placeholder="מקילידים שאלה חופשית..." class="flex-grow bg-slate-950 text-slate-200 p-2 rounded-xl text-xs border border-slate-800 focus:outline-none focus:border-amber-500">
+<button onclick="sendCustomBotQuestion()" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-2 rounded-xl text-xs">
+שולחים
+</button>
+</div>
+</div>
+</div>
+
+<!-- JavaScript Logic -->
+<script>
+let score = 0;
+let totalAttempts = 0;
+let correctAnswersCount = 0;
+let userMistakes = [];
+
+const praisePhrases = [
+"כל הכבוד! תשובה נכונה.",
+"אליפות! עבודה מעולה.",
+"מצוין! ממשיכים כך.",
+"תשובה מדויקת!"
+];
+
+window.goToStation = function(stationNum) {
+    console.log('Navigating to station:', stationNum);
+    for (let i = 1; i <= 5; i++) {
+        const sec = document.getElementById(`station-${i}`);
+        if (sec) sec.classList.remove('active-section');
+        
+        const btn = document.getElementById(`step-btn-${i}`);
+        if (btn) {
+            if (i === stationNum) {
+                btn.className = "py-2 rounded bg-amber-500 text-slate-950 font-bold transition";
+            } else if (i < stationNum) {
+                btn.className = "py-2 rounded bg-emerald-700 text-white font-bold transition";
+            } else {
+                btn.className = "py-2 rounded bg-slate-800 text-slate-400 transition";
+            }
+        }
+    }
+
+    const targetSection = document.getElementById(`station-${stationNum}`);
+    if (targetSection) {
+        targetSection.classList.add('active-section');
+    }
+
+    if (stationNum === 5) {
+        renderSummaryDashboard();
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+function addScore(points, isCorrect, explanationText = '') {
+    totalAttempts++;
+    if (isCorrect) {
+        correctAnswersCount++;
+        score += points;
+        document.getElementById('global-score').innerText = score;
+        playPositiveAudioSound();
+        showFeedbackToast(praisePhrases[Math.floor(Math.random() * praisePhrases.length)], true);
+    } else {
+        playNegativeAudioSound();
+        showFeedbackToast("תשובה לא מדויקת, מנסים שוב!", false);
+        if (explanationText && !userMistakes.includes(explanationText)) {
+            userMistakes.push(explanationText);
+        }
+    }
+}
+
+function showFeedbackToast(msg, isSuccess) {
+    const toast = document.getElementById('feedback-toast');
+    const toastBg = document.getElementById('toast-bg');
+    const toastIcon = document.getElementById('toast-icon');
+    const toastMsg = document.getElementById('toast-msg');
+
+    toastMsg.innerText = msg;
+    if (isSuccess) {
+        toastBg.className = "bg-emerald-600 text-white font-extrabold px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border-2 border-emerald-300 text-sm sm:text-base";
+        toastIcon.className = "fa-solid fa-circle-check text-xl";
+    } else {
+        toastBg.className = "bg-rose-600 text-white font-extrabold px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border-2 border-rose-300 text-sm sm:text-base";
+        toastIcon.className = "fa-solid fa-circle-xmark text-xl";
+    }
+
+    toast.classList.remove('hidden');
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, 2500);
+}
+
+function playPositiveAudioSound() {
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        if (ctx.state === 'suspended') ctx.resume();
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(659.25, ctx.currentTime + 0.1);
+        osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.2);
+
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.35);
+    } catch (e) {}
+}
+
+function playNegativeAudioSound() {
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        if (ctx.state === 'suspended') ctx.resume();
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(160, ctx.currentTime + 0.25);
+
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.25);
+    } catch (e) {}
+}
+
+function toggleHint(hintId) {
+    const hintElem = document.getElementById(hintId);
+    if (hintElem) {
+        hintElem.classList.toggle('hidden');
+    }
+}
+
+const singleWordsData = [
+    { word: "إِسْم", phonetic: "אִסְם", similarity: "מזכיר את המילה שם", meaning: "שם", question: "איזו אות פותחת את המילה إِسْم?", options: ["האות אליף עם כסרה (إِ)", "האות סין (س)", "האות م (מים)"], correctIndex: 0 },
+    { word: "تَارِيخ", phonetic: "תַארִיח'", similarity: "מזכיר את המילה תאריך", meaning: "תאריך", question: "איזו אות סופית מופיעה בסוף המילה تَارِيخ?", options: ["האות ح (חאא)", "האות خ (ח'אא)", "האות ت (תאא)"], correctIndex: 1 },
+    { word: "وِلادَة", phonetic: "וִילָאדַה", similarity: "דומה למילה לידה/יילוד", meaning: "לידה", question: "איזו אות מסיימת את המילה وِلادَة?", options: ["האות ة (תאא מרבוטה)", "האות ه (האא)", "האות د (دאל)"], correctIndex: 0 },
+    { word: "مَكَان", phonetic: "מכאן", similarity: "מזכיר את המילים מקום / מכאן", meaning: "מקום", question: "איזו אות מופיעה במרכז המילה مَكَان?", options: ["האות ك (كאף)", "האות ق (קאף)", "האות ن (נון)"], correctIndex: 0 },
+    { word: "مِهْنَة", phonetic: "מִהְנַה", similarity: "", meaning: "מקצוע / משלח יד", question: "איזו אות מופיעה לאחר האות מים במילה مِهْنَة?", options: ["האות ه (האא)", "האות ع (עין)", "האות ح (חאא)"], correctIndex: 0 },
+    { word: "مَدِينَة", phonetic: "מַדִינַה", similarity: "", meaning: "עיר", question: "מהי האות הראשונה של המילה مَدِينَة?", options: ["האות م (מים)", "האות د (دאל)", "האות ي (יאא)"], correctIndex: 0 },
+    { word: "عَدَد", phonetic: "עַדַד", similarity: "", meaning: "מספר / כמות", question: "כמה פעמים מופיעה האות د (دאל) במילה عَدَد?", options: ["פעם אחת", "פעמיים (2)", "3 פעמים"], correctIndex: 1 },
+    { word: "سُكَّان", phonetic: "סֻכַּאן", similarity: "מזכיר את המילה שכנים, פועל לשכון", meaning: "תושבים", question: "איזו אות פותחת את המילה سُكَّان?", options: ["האות س (סין)", "האות ش (שין)", "האות ك (كאף)"], correctIndex: 0 },
+    { word: "دِين", phonetic: "דִין", similarity: "", meaning: "דת", question: "מה האותיות המרכיבות את המילה دِين?", options: ["דאל, יאא, נון", "דאל, אליף, נון", "ראא, יאא, נון"], correctIndex: 0 },
+    { word: "لُغَة", phonetic: "לֻעַ'ה", similarity: "", meaning: "שפה", question: "איזו אות מופיעה באמצע המילה لُغَة?", options: ["האות غ (ע'ין עם נקודה)", "האות ع (עין ללא נקודה)", "האות ف (פאא)"], correctIndex: 0 },
+    { word: "مِنْطَقَة", phonetic: "מנטקה", similarity: "", meaning: "מחוז / אזור", question: "איזו אות מופיעה במרכז המילה مِنْطَقَة?", options: ["האות ط (טאא)", "האות ت (תאא)", "האות ظ (זאא)"], correctIndex: 0 }
+];
+
+let currentWordIndex = 0;
+let quizAnswersState = { 1: false, 2: false, 3: false };
+
+// מסיר רק את תנועת סוף המילה (פתחה/דמה/כסרה/תנוין/סוכון) ומשאיר את הניקוד הפנימי ואת השדה
+function toPausalForm(word) {
+    let w = word
+        .replace(/\u0640/g, '')                        // טאטוויל
+        .replace(/[\u064B-\u0650\u0652\u0670]+$/, ''); // מסיר ניקוד סופי, משאיר שדה (\u0651)
+    w = w.replace(/\u0629$/, '\u0647');                // ة בסוף מילה -> ه (נקראת "ה" ולא "תו/תה")
+    if (/[\u0621-\u0628\u062A-\u0649\u064A]$/.test(w) && !/[\u0627\u0649]$/.test(w)) {
+        w += '\u0652';                                 // סוכון מפורש על האות האחרונה: אין תנועה
+    }
+    return w;
+}
+
+function playCurrentWordAudio() {
+    const data = singleWordsData[currentWordIndex];
+    const spoken = data.tts || toPausalForm(data.word); // אפשר להוסיף שדה tts למילה בעייתית
+
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(spoken);
+        utterance.lang = 'ar-SA';
+        utterance.rate = 0.70;
+
+        const voices = window.speechSynthesis.getVoices();
+        const googleVoice = voices.find(v => v.lang.includes('ar') && v.name.includes('Google'));
+        if (googleVoice) {
+            utterance.voice = googleVoice;
+        }
+
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
+function renderWordCard() {
+    const data = singleWordsData[currentWordIndex];
+    document.getElementById('word-progress-counter').innerText = `מילה ${currentWordIndex + 1} מתוך ${singleWordsData.length}`;
+    document.getElementById('card-arabic-word').innerText = data.word;
+    document.getElementById('card-phonetic').innerText = data.phonetic;
+    document.getElementById('card-meaning').innerText = data.meaning;
+    document.getElementById('card-similarity').innerText = data.similarity || "---";
+
+    document.getElementById('card-quiz-question').innerText = data.question;
+    const optsContainer = document.getElementById('card-quiz-options');
+    optsContainer.innerHTML = '';
+
+    data.options.forEach((optText, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'bg-slate-800 hover:bg-slate-700 p-2.5 rounded-xl border border-slate-600 text-xs text-slate-200 text-right transition font-medium';
+        btn.innerText = optText;
+        btn.onclick = () => checkWordQuiz(idx, data.correctIndex, btn, data.word);
+        optsContainer.appendChild(btn);
+    });
+
+    const fb = document.getElementById('card-quiz-feedback');
+    fb.classList.add('hidden');
+
+    document.getElementById('prev-word-btn').disabled = (currentWordIndex === 0);
+    if (currentWordIndex === singleWordsData.length - 1) {
+        document.getElementById('next-word-btn').innerText = 'סיימנו! עוברים לשלב ב\'';
+    } else {
+        document.getElementById('next-word-btn').innerHTML = 'למילה הבאה <i class="fa-solid fa-arrow-left"></i>';
+    }
+}
+
+function checkWordQuiz(selectedIndex, correctIndex, btnElement, wordName) {
+    const fb = document.getElementById('card-quiz-feedback');
+    fb.classList.remove('hidden', 'bg-emerald-900/60', 'text-emerald-300', 'bg-rose-900/60', 'text-rose-300');
+    if (selectedIndex === correctIndex) {
+        fb.classList.add('bg-emerald-900/60', 'text-emerald-300');
+        fb.innerText = "✓ תשובה נכונה! כל הכבוד.";
+        addScore(10, true);
+    } else {
+        fb.classList.add('bg-rose-900/60', 'text-rose-300');
+        fb.innerText = "✗ תשובה שגויה, מנסים שוב.";
+        addScore(0, false, `זיהוי אות במילה ${wordName}`);
+    }
+}
+
+function prevWord() {
+    if (currentWordIndex > 0) {
+        currentWordIndex--;
+        renderWordCard();
+    }
+}
+
+function nextWord() {
+    if (currentWordIndex < singleWordsData.length - 1) {
+        currentWordIndex++;
+        renderWordCard();
+    } else {
+        document.getElementById('single-word-section').classList.add('hidden');
+        document.getElementById('compound-phrases-section').classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function checkCompound(btn, isCorrect, termContext) {
+    const parent = btn.parentElement;
+    const buttons = parent.querySelectorAll('button');
+    buttons.forEach(b => {
+        b.className = "bg-slate-900 p-2.5 rounded text-xs text-slate-200 border border-slate-700";
+    });
+    if (isCorrect) {
+        btn.className = "bg-emerald-700 text-white p-2.5 rounded text-xs font-bold border border-emerald-400";
+        addScore(10, true);
+    } else {
+        btn.className = "bg-rose-800 text-white p-2.5 rounded text-xs font-bold border border-rose-500";
+        addScore(0, false, `פענוח הצירוף: ${termContext}`);
+    }
+}
+
+function openTask(type) {
+    const taskArea = document.getElementById('interactive-task-area');
+    const taskTitle = document.getElementById('task-title');
+    taskArea.classList.remove('hidden');
+    if (type === 'personal') {
+        taskTitle.innerText = "משימה א': התאמת שדות תעודת זהות אישית";
+        const qData = [
+            { ar: "إِسْم العَائِلَة", ans: ["שם משפחה", "שם פרטי", "מקום מגורים"], correct: 0 },
+            { ar: "تَارِيخ الوِلادَة", ans: ["מקום לידה", "תאריך לידה", "מקצוע"], correct: 1 },
+            { ar: "المِهْنَة", ans: ["מקצוע", "דת", "מין"], correct: 0 }
+        ];
+        renderTaskQuestions(qData);
+    } else {
+        taskTitle.innerText = "משימה ב': התאמת שדות תעודת זהות ליישוב";
+        const qData = [
+            { ar: "إِسْم المَدِينَة", ans: ["שם העיר", "שם מחוז", "מדינה"], correct: 0 },
+            { ar: "عَدَد السُّكَّان", ans: ["מספר התושבים", "שפת התושבים", "תאריך הקמה"], correct: 0 },
+            { ar: "مِنْطَقَة", ans: ["מחוז / אזור", "מקום לידה", "דת התושבים"], correct: 0 }
+        ];
+        renderTaskQuestions(qData);
+    }
+}
+
+function renderTaskQuestions(qData) {
+    const questionsContainer = document.getElementById('task-questions');
+    questionsContainer.innerHTML = '';
+    qData.forEach((item, qIdx) => {
+        const div = document.createElement('div');
+        div.className = "bg-slate-900/80 p-3 rounded-lg space-y-2 border border-slate-700";
+        div.innerHTML = `<p class="font-arabic text-2xl text-amber-300 font-bold">${item.ar}</p> <select id="task-ans-${qIdx}" data-correct="${item.correct}" data-term="${item.ar}" class="w-full bg-slate-800 text-xs text-slate-200 p-2.5 rounded border border-slate-600"> <option value="">בוחרים תרגום מתאים...</option> ${item.ans.map((a, i) => `<option value="${i}">${a}</option>`).join('')} </select>`;
+        questionsContainer.appendChild(div);
+    });
+}
+
+function submitTaskChoice() {
+    const selects = document.querySelectorAll('#task-questions select');
+    let allCorrect = true;
+    selects.forEach(s => {
+        if (s.value !== s.getAttribute('data-correct')) {
+            allCorrect = false;
+            addScore(0, false, `מילוי שדה בתעודה: ${s.getAttribute('data-term')}`);
+        }
+    });
+
+    const fb = document.getElementById('task-feedback');
+    fb.classList.remove('hidden', 'bg-emerald-900/60', 'text-emerald-300', 'bg-rose-900/60', 'text-rose-300');
+    if (allCorrect) {
+        fb.classList.add('bg-emerald-900/60', 'text-emerald-300');
+        fb.innerText = "✓ כל התשובות במשימה נכונות! מעולה.";
+        addScore(15, true);
+    } else {
+        fb.classList.add('bg-rose-900/60', 'text-rose-300');
+        fb.innerText = "✗ חלק מהתשובות אינן נכונות, מנסים לבדוק שוב.";
+    }
+}
+
+function checkEnrichment() {
+    const a1 = document.getElementById('enrich-1').value;
+    const a2 = document.getElementById('enrich-2').value;
+    const a3 = document.getElementById('enrich-3').value;
+
+    const fb = document.getElementById('enrichment-feedback');
+    fb.classList.remove('hidden', 'bg-emerald-900/60', 'text-emerald-300', 'bg-rose-900/60', 'text-rose-300');
+
+    if (a1 === 'personal' && a2 === 'city' && a3 === 'both') {
+        fb.classList.add('bg-emerald-900/60', 'text-emerald-300');
+        fb.innerText = "✓ פתרון מצוין! תאריך לידה הוא אישי, שפת תושבים שייכת ליישוב, ודת מופיעה בשניהם.";
+        addScore(15, true);
+    } else {
+        fb.classList.add('bg-rose-900/60', 'text-rose-300');
+        fb.innerText = "✗ יש טעות בסיווג. חושבים שוב מה ייחודי לאדם ומה מתאר יישוב שלם.";
+        addScore(0, false, 'משימת העמקה - סיווג שדות תעודות');
+    }
+}
+
+function selectQuiz(qNum, optIdx, isCorrect, questionTopic) {
+    quizAnswersState[qNum] = isCorrect;
+    const btns = document.querySelectorAll(`.q${qNum}-btn`);
+    btns.forEach((b, i) => {
+        if (i === optIdx) {
+            b.className = `q${qNum}-btn p-2.5 rounded font-bold text-white border ${isCorrect ? 'bg-emerald-700 border-emerald-400' : 'bg-rose-800 border-rose-500'}`;
+        } else {
+            b.className = `q${qNum}-btn p-2.5 bg-slate-900 rounded border border-slate-700 text-slate-200`;
+        }
+    });
+
+    if (isCorrect) {
+        addScore(10, true);
+    } else {
+        addScore(0, false, `שאלה ${qNum} בתחנה 4: ${questionTopic}`);
+    }
+}
+
+function checkLockCode() {
+    const res = document.getElementById('lock-result');
+    res.classList.remove('hidden', 'bg-emerald-900/80', 'text-emerald-200', 'bg-rose-900/80', 'text-rose-200');
+
+    if (quizAnswersState[1] && quizAnswersState[2] && quizAnswersState[3]) {
+        res.classList.add('bg-emerald-900/80', 'text-emerald-200');
+        res.innerHTML = "🔓 <strong>קוד המנעול פוענח בהצלחה: 7-2-9</strong><br>כל התשובות נכונות! המסמכים שוחררו בהצלחה.";
+        addScore(20, true);
+    } else {
+        res.classList.add('bg-rose-900/80', 'text-rose-200');
+        res.innerHTML = "🔒 <strong>המנעול עדיין נעול!</strong><br>מוודאים שרושמים תשובות נכונות בכל 3 השאלות.";
+        addScore(0, false, "פענוח קוד המנעול בתחנה 4");
+    }
+}
+
+function renderSummaryDashboard() {
+    document.getElementById('summary-total-score').innerText = score;
+    const accuracy = totalAttempts > 0 ? Math.round((correctAnswersCount / totalAttempts) * 100) : 100;
+    document.getElementById('summary-accuracy').innerText = `${accuracy}%`;
+    document.getElementById('summary-answered-count').innerText = totalAttempts;
+
+    let rank = "חוקר מתחיל";
+    if (score >= 100) rank = "מומחה שפה בכיר 🏆";
+    else if (score >= 60) rank = "חוקר מתקדם ⭐️";
+    document.getElementById('summary-rank').innerText = rank;
+
+    const mistakesContainer = document.getElementById('mistakes-review-container');
+    mistakesContainer.innerHTML = '';
+
+    if (userMistakes.length === 0) {
+        mistakesContainer.innerHTML = '<div class="p-3 bg-emerald-900/40 border border-emerald-500/30 rounded-lg text-emerald-300 font-bold">✨ מדהים! עונים על כל השאלות ללא שום טעויות.</div>';
+    } else {
+        userMistakes.forEach(m => {
+            const div = document.createElement('div');
+            div.className = "p-2 bg-slate-900 border border-slate-700 rounded text-slate-300 flex items-center gap-2";
+            div.innerHTML = `<i class="fa-solid fa-circle-exclamation text-amber-400"></i> <span>${m}</span>`;
+            mistakesContainer.appendChild(div);
+        });
+    }
+}
+
+function copyExitTicket() {
+    const evalVal = document.getElementById('self-eval').value;
+    const wordVal = document.getElementById('reflection-word').value;
+    const textToCopy = `כרטיס יציאה - הקוד הנעול: ניקוד סופי שנצבר: ${score} הערכה עצמית: ${evalVal} מילה/אות מאתגרת: ${wordVal || 'ללא'}`;
+
+    const dummy = document.createElement("textarea");
+    document.body.appendChild(dummy);
+    dummy.value = textToCopy;
+    dummy.select();
+    document.execCommand("copy");
+    document.body.removeChild(dummy);
+
+    const fb = document.getElementById('copy-feedback');
+    fb.classList.remove('hidden');
+}
+
+function toggleBotModal() {
+    document.getElementById('bot-modal').classList.toggle('hidden');
+}
+
+function askBotQuestion(questionText) {
+    const history = document.getElementById('bot-chat-history');
+    let answer = "שאלה מצוינת! הקפידו לעקוב אחר תעתיק המילים והניקוד המפורט בתחנה 2.";
+
+    if (questionText.includes('منطقة')) {
+        answer = "האות טאא (ط) במילה مِنْطَقَة هي אות נחצית ועמוקה (כמו ט' עמוקה), להבדיל מהאות תאא (ت) שהיא רכה.";
+    } else if (questionText.includes('הבדל')) {
+        answer = "تَارِيخ الوِلادَة هو תאריך הלידה האישי של האדם, בעוד تَارِيخ إِقَامَة المَدِينَة هو תאריך ההקמה של העיר/יישוב.";
+    }
+
+    history.innerHTML += `<div class="bg-slate-800 text-slate-200 p-2 rounded-lg text-left font-semibold">👤 ${questionText}</div> <div class="bg-indigo-950 text-indigo-200 p-2 rounded-lg border border-indigo-500/30">🤖 ${answer}</div>`;
+    history.scrollTop = history.scrollHeight;
+}
+
+function sendCustomBotQuestion() {
+    const input = document.getElementById('bot-custom-input');
+    if (input.value.trim() !== '') {
+        askBotQuestion(input.value.trim());
+        input.value = '';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    window.goToStation(1);
+    renderWordCard();
+
+    document.body.addEventListener('touchend', function(e) {
+        const btn = e.target.closest('button');
+        if (btn) {
+            e.preventDefault();
+            btn.click();
+        }
+    }, { passive: false });
+});
+</script>
+</body>
+</html>
